@@ -18,12 +18,15 @@ export function printReceipt(tags: string[]): string {
   const promotion = new Promotion(loadPromotions()[0]!.type, loadPromotions()[0]!.barcodes)
 
   const receiptArray = Array.from(receiptMap)
+  const originPrice = receiptArray.map(item => item[1].price * item[1].quantity).reduce((x, y) => x + y)
+  const totalPrice = receiptArray.map(item => promotion.calculateSubtotal(item[1])).reduce((x, y) => x + y)
+  const discountedPrice = originPrice - totalPrice
 
   return '***<store earning no money>Receipt ***\n' +
     `${receiptArray.map(item => item[1].toOutput() + `Subtotal：${promotion.calculateSubtotal(item[1]).toFixed(2)}(yuan)\n`).reduce((x, y) => x + y)}` +
     '----------------------\n' +
-    `Total：${receiptArray.map(item => promotion.calculateSubtotal(item[1])).reduce((x, y) => x + y).toFixed(2)}(yuan)\n` +
-    `Discounted prices：${(receiptArray.map(item => item[1].price * item[1].quantity).reduce((x, y) => x + y) - receiptArray.map(item => promotion.calculateSubtotal(item[1])).reduce((x, y) => x + y)).toFixed(2)}(yuan)\n` +
+    `Total：${totalPrice.toFixed(2)}(yuan)\n` +
+    `Discounted prices：${discountedPrice.toFixed(2)}(yuan)\n` +
     '**********************'
 
   //   return `***<store earning no money>Receipt ***
@@ -70,7 +73,6 @@ export class Promotion {
   }
 
   calculateSubtotal(item: Item): number {
-    console.log(item)
     if (this.barcodes.find(barcode => barcode === item.barcode) !== null) {
       const promotionTimes = Math.floor(item.quantity / 3)
       return item.price * 2 * promotionTimes + item.price * (item.quantity % 3)
