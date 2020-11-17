@@ -3,15 +3,22 @@ import { loadAllItems, loadPromotions } from './Dependencies'
 export function printReceipt(tags: string[]): string {
   const items = loadAllItems()
   const receiptMap = new Map()
-  for (const tag of tags) {
+  for (const inputTag of tags) {
+    const tag = inputTag.split('-')[0]
+    const quantity = inputTag.split('-').length > 1 ? Number.parseFloat(inputTag.split('-')[1]) : 1
     if (receiptMap.has(tag)) {
-      receiptMap.get(tag).Quantity += 1
+      receiptMap.get(tag).quantity += quantity
     }
     else {
       const item = items.find(item => item.barcode === tag)
-      receiptMap.set(tag, { ...item, quantity: 1 } as Item)
+      receiptMap.set(tag, { ...item, quantity: quantity } as Item)
     }
   }
+  console.log(...receiptMap)
+  const promotion = loadPromotions()[0] as Promotion
+
+
+
 
   return `***<store earning no money>Receipt ***
 Name：Sprite，Quantity：5 bottles，Unit：3.00(yuan)，Subtotal：12.00(yuan)
@@ -45,5 +52,14 @@ export class Item {
     }
     const outString = `Name: ${this.name}, Quantity: ${this.quantity + unitString}, Unit price: ${this.price.toFixed(2)} (yuan), Subtotal: ${(this.price * this.quantity).toFixed(2)} (yuan)\n`
     return outString
+  }
+}
+
+export class Promotion {
+  type: string
+  barcodes: string[]
+  constructor(type: string, barcodes: string[]) {
+    this.type = type
+    this.barcodes = barcodes
   }
 }
