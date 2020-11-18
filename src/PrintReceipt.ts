@@ -7,9 +7,10 @@ export function printReceipt(tags: string[]): string {
   const originPrice = receiptArray.map(item => item[1].price * item[1].quantity).reduce((x, y) => x + y)
   const totalPrice = receiptArray.map(item => promotion.calculateSubtotal(item[1])).reduce((x, y) => x + y)
   const discountedPrice = originPrice - totalPrice
+  const calculateSubtotal = (promotion: Promotion, item: [string, Item]) => promotion.calculateSubtotal(item[1]).toFixed(2)
 
   return '***<store earning no money>Receipt ***\n' +
-    `${receiptArray.map(item => item[1].toOutput() + `Subtotal：${promotion.calculateSubtotal(item[1]).toFixed(2)}(yuan)\n`).reduce((x, y) => x + y)}` +
+    `${receiptArray.map(item => item[1].toOutput() + `Subtotal：${calculateSubtotal(promotion, item)}(yuan)\n`).reduce((x, y) => x + y)}` +
     '----------------------\n' +
     `Total：${totalPrice.toFixed(2)}(yuan)\n` +
     `Discounted prices：${discountedPrice.toFixed(2)}(yuan)\n` +
